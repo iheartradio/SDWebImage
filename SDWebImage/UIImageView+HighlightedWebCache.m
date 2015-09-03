@@ -38,24 +38,11 @@ static char imageURLKey;
 
 - (void)sd_setHighlightedImageWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock {
     [self sd_cancelCurrentHighlightedImageLoad];
-    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     if (url) {
-        __weak UIImageView      *wself    = self;
+        __weak __typeof(self)wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
-            
-            NSURL *lastURL = [wself sd_imageURL];
-            if (![lastURL isEqual:imageURL]) {
-                dispatch_main_async_safe(^{
-                    NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
-                    if (completedBlock) {
-                        completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
-                    }
-                });
-                return;
-            }
-            
             dispatch_main_sync_safe (^
                                      {
                                          if (!wself) return;
@@ -71,7 +58,7 @@ static char imageURLKey;
         [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {
         dispatch_main_async_safe(^{
-            NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
+            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
             if (completedBlock) {
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
             }
