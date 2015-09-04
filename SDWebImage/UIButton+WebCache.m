@@ -29,7 +29,7 @@ static char backgroundImageURLStorageKey;
     NSURL *url = self.backgroundImageURLStorage[@(self.state)];
     
     if (!url) {
-        url = self.backgroundImageURLStorage[@(self.state)];
+        url = self.backgroundImageURLStorage[@(UIControlStateNormal)];
     }
     
     return url;
@@ -95,6 +95,7 @@ static char backgroundImageURLStorageKey;
                     completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
                 }
             });
+            return;
         }
         
         dispatch_main_sync_safe(^{
@@ -208,10 +209,10 @@ static char backgroundImageURLStorageKey;
 - (NSMutableDictionary *)backgroundImageURLStorage {
     NSMutableDictionary *storage = objc_getAssociatedObject(self, &backgroundImageURLStorageKey);
     if (!storage)
-        {
-            storage = [NSMutableDictionary dictionary];
-            objc_setAssociatedObject(self, &backgroundImageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        }
+    {
+        storage = [NSMutableDictionary dictionary];
+        objc_setAssociatedObject(self, &backgroundImageURLStorageKey, storage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
     
     return storage;
 }

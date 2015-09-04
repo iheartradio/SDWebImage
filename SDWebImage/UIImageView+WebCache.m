@@ -60,8 +60,8 @@ static char imageURLKey;
                     if (completedBlock) {
                         completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
                     }
-                    return;
                 });
+                return;
             }
             
             dispatch_main_sync_safe(^{
