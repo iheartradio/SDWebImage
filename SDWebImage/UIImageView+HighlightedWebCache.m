@@ -41,7 +41,7 @@ static char imageURLKey;
     objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     if (url) {
-        __weak UIImageView      *wself    = self;
+        __weak __typeof(self)wself = self;
         id<SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (!wself) return;
             
@@ -59,7 +59,12 @@ static char imageURLKey;
             dispatch_main_sync_safe (^
                                      {
                                          if (!wself) return;
-                                         if (image) {
+                                         if (image && (options & SDWebImageAvoidAutoSetImage) && completedBlock)
+                                         {
+                                             completedBlock(image, error, cacheType, url);
+                                             return;
+                                         }
+                                         else if (image) {
                                              wself.highlightedImage = image;
                                              [wself setNeedsLayout];
                                          }
@@ -71,7 +76,7 @@ static char imageURLKey;
         [self sd_setImageLoadOperation:operation forKey:UIImageViewHighlightedWebCacheOperationKey];
     } else {
         dispatch_main_async_safe(^{
-            NSError *error = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
+            NSError *error = [NSError errorWithDomain:SDWebImageErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey : @"Trying to load a nil url"}];
             if (completedBlock) {
                 completedBlock(nil, error, SDImageCacheTypeNone, url);
             }
