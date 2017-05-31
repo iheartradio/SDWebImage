@@ -57,6 +57,18 @@ static char TAG_ACTIVITY_SHOW;
             if (!sself) {
                 return;
             }
+            
+            NSURL *lastURL = [wself sd_imageURL];
+            if (![lastURL isEqual:imageURL]) {
+                dispatch_main_async_safe(^{
+                    NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
+                    if (completedBlock) {
+                        completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
+                    }
+                });
+                return;
+            }
+            
             dispatch_main_async_safe(^{
                 if (!sself) {
                     return;
