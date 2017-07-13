@@ -18,6 +18,10 @@
 @implementation UIImage (MultiFormat)
 
 + (UIImage *)sd_imageWithData:(NSData *)data {
+    return [UIImage sd_imageWithData:data checkOrientation:NO];
+}
+
++ (UIImage *)sd_imageWithData:(NSData *)data checkOrientation:(BOOL)shouldCheckOrientation {
     UIImage *image;
     NSString *imageContentType = [NSData sd_contentTypeForImageData:data];
     if ([imageContentType isEqualToString:@"image/gif"]) {
@@ -31,11 +35,13 @@
 #endif
     else {
         image = [[UIImage alloc] initWithData:data];
-        UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
-        if (orientation != UIImageOrientationUp) {
-            image = [UIImage imageWithCGImage:image.CGImage
-                                        scale:image.scale
-                                  orientation:orientation];
+        if (shouldCheckOrientation) {
+            UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
+            if (orientation != UIImageOrientationUp) {
+                image = [UIImage imageWithCGImage:image.CGImage
+                                            scale:image.scale
+                                      orientation:orientation];
+            }
         }
     }
 
