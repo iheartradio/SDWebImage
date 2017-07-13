@@ -18,6 +18,12 @@
 @implementation UIImage (MultiFormat)
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data {
+    return [UIImage sd_imageWithData:data checkOrientation:NO];
+}
+
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data
+                      checkOrientation:(BOOL)shouldCheckOrientation
+{
     if (!data) {
         return nil;
     }
@@ -36,11 +42,13 @@
     else {
         image = [[UIImage alloc] initWithData:data];
 #if SD_UIKIT || SD_WATCH
-        UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
-        if (orientation != UIImageOrientationUp) {
-            image = [UIImage imageWithCGImage:image.CGImage
-                                        scale:image.scale
-                                  orientation:orientation];
+        if (shouldCheckOrientation) {
+            UIImageOrientation orientation = [self sd_imageOrientationFromImageData:data];
+            if (orientation != UIImageOrientationUp) {
+                image = [UIImage imageWithCGImage:image.CGImage
+                                            scale:image.scale
+                                      orientation:orientation];
+            }
         }
 #endif
     }

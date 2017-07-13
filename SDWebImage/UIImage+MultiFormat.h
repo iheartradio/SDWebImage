@@ -12,6 +12,8 @@
 @interface UIImage (MultiFormat)
 
 + (nullable UIImage *)sd_imageWithData:(nullable NSData *)data;
++ (nullable UIImage *)sd_imageWithData:(nullable NSData *)data
+                      checkOrientation:(BOOL)shouldCheckOrientation;
 - (nullable NSData *)sd_imageData;
 - (nullable NSData *)sd_imageDataAsFormat:(SDImageFormat)imageFormat;
 
