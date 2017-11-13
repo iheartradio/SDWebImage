@@ -68,6 +68,18 @@ static char TAG_ACTIVITY_SHOW;
             __strong __typeof (wself) sself = wself;
             [sself sd_removeActivityIndicator];
             if (!sself) { return; }
+
+            NSURL *lastURL = [wself sd_imageURL];
+            if (![lastURL isEqual:imageURL]) {
+                dispatch_main_async_safe(^{
+                    NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
+                    if (completedBlock) {
+                        completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
+                    }
+                });
+                return;
+            }
+
             BOOL shouldCallCompletedBlock = finished || (options & SDWebImageAvoidAutoSetImage);
             BOOL shouldNotSetImage = ((image && (options & SDWebImageAvoidAutoSetImage)) ||
                                       (!image && !(options & SDWebImageDelayPlaceholder)));
