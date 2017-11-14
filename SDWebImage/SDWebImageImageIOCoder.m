@@ -104,9 +104,26 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
     }
     
     UIImage *image = [[UIImage alloc] initWithData:data];
-    image.sd_imageFormat = [NSData sd_imageFormatForImageData:data];
+    
+#if SD_MAC
+    return image;
+#else
+    if (!image) {
+        return nil;
+    }
+    
+    SDImageFormat format = [NSData sd_imageFormatForImageData:data];
+    if (format == SDImageFormatGIF) {
+        // static single GIF need to be created animated for `FLAnimatedImage` logic
+        // GIF does not support EXIF image orientation
+        image = [UIImage animatedImageWithImages:@[image] duration:image.duration];
+        return image;
+    }
+    
+    image.sd_imageFormat = format;
     
     return image;
+#endif
 }
 
 - (UIImage *)incrementallyDecodedImageWithData:(NSData *)data finished:(BOOL)finished {
