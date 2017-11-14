@@ -106,12 +106,6 @@ static const CGFloat kDestSeemOverlap = 2.0f;   // the numbers of pixels to over
         image = [UIImage animatedImageWithImages:@[image] duration:image.duration];
         return image;
     }
-    UIImageOrientation orientation = [[self class] sd_imageOrientationFromImageData:data];
-    if (orientation != UIImageOrientationUp) {
-        image = [UIImage imageWithCGImage:image.CGImage
-                                    scale:image.scale
-                              orientation:orientation];
-    }
     
     return image;
 #endif
