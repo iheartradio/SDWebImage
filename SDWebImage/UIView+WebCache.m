@@ -121,6 +121,16 @@ static char TAG_ACTIVITY_SHOW;
         id <SDWebImageOperation> operation = [manager loadImageWithURL:url options:options progress:combinedProgressBlock completed:^(UIImage *image, NSData *data, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             __strong __typeof (wself) sself = wself;
             if (!sself) { return; }
+
+            NSURL *lastURL = [sself sd_imageURL];
+            if (![lastURL isEqual:imageURL]) {
+                NSError *urlError = [NSError errorWithDomain:@"SDWebImageErrorDomain" code:-1 userInfo:@{NSLocalizedDescriptionKey : @"URL request/response mismatch"}];
+                if (completedBlock) {
+                    completedBlock(nil, urlError, SDImageCacheTypeNone, imageURL);
+                }
+                return;
+            }
+
 #if SD_UIKIT
             [sself sd_removeActivityIndicator];
 #endif
